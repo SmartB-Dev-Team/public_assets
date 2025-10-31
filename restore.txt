@@ -77,4 +77,50 @@ bench restart
 
 bench set-config -g server_script_enabled 1
 
+http://192.168.0.100:8000
+to access it from another system we have 
+1. Allowed access to port 8000 in Windows Server (using Windows Defender Firewall Rules)
+2. Added a proxy that forwards all traffic on port 8000 accessed by Server's IP to same port on WSL's IP
+
+
+Check Size:
+ssh digitalocean "du -sh --exclude='node_modules' --exclude='env' --exclude='venv' --exclude='.venv' --exclude='.npm' --exclude='.cache' --exclude='__pycache__' --exclude='*.pyc' --exclude='.nvm' --exclude='.git' --exclude='*.tar.gz' /home/erpnext-user/"
+
+
+Download:
+sudo rm -rf erpnext-user && mkdir erpnext-user && cd erpnext-user (or sudo rm -rf a.out backups/ bench/ package-lock.json package.json)
+
+rsync -avh --info=progress2 --stats --exclude='node_modules' --exclude='env' --exclude='venv' --exclude='.venv' --exclude='.npm' --exclude='.cache' --exclude='__pycache__' --exclude='*.pyc' --exclude='.nvm' --exclude='*.tar.gz' digitalocean:/home/erpnext-user/bench/ .
+
+After Download:
+(optional)
+nvm install 18.20.8
+nvm use 18.20.8
+
+cd bench
+python3 -m venv env
+source env/bin/activate
+pip install -e apps/frappe
+pip install -e apps/erpnext
+
+MIGRATE DATABASE
+find and replace all user references:
+cd ~/erpnext-user
+grep -r "/erpnext-user/" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=env --exclude-dir=__pycache__ -l
+
+bench setup requirements
+bench build
+
+
+python3 --version
+node --version
+npm --version
+yarn --version
+mysql --version
+redis-server --version
+git --version
+bench --version
+
+source ~/.nvm/nvm.sh
+
 
